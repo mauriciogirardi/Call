@@ -20,7 +20,7 @@ export default function ConnectCalendar() {
   const router = useRouter()
   const hasAuthError = !!router.query.error
   const { data, status } = useSession()
-  const { user } = data as DataUser
+  const { user } = (data as DataUser) || {}
 
   const isAuthenticated = status === 'authenticated'
   const connectMessage = isAuthenticated ? 'Conectado' : 'Conectar'
@@ -67,7 +67,11 @@ export default function ConnectCalendar() {
             permissões de acesso ao Google Calendar
           </AuthError>
         )}
-        <Button type="submit" disabled={!isAuthenticated}>
+        <Button
+          type="button"
+          disabled={!isAuthenticated}
+          onClick={() => router.push('/register/time-intervals')}
+        >
           Próximo passo
           <ArrowRight />
         </Button>

@@ -42,9 +42,6 @@ export default function Register() {
   const handleRegisterForm = async ({ name, username }: RegisterFormData) => {
     try {
       await api.post('/users', { name, username })
-      message({
-        description: 'Usuário cadastrado com sucesso!',
-      })
 
       await router.push('/register/connect-calendar')
     } catch (error) {

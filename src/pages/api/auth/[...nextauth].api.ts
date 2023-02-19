@@ -3,6 +3,11 @@ import NextAuth, { NextAuthOptions } from 'next-auth'
 import GoogleProvider, { GoogleProfile } from 'next-auth/providers/google'
 import { PrismaAdapter } from '../../../lib/auth/prisma-adapter'
 
+const SCOPE_USER_INFO_EMAIL = 'https://www.googleapis.com/auth/userinfo.email'
+const SCOPE_USER_INFO_PROFILE =
+  'https://www.googleapis.com/auth/userinfo.profile'
+const SCOPE_CALENDAR = 'https://www.googleapis.com/auth/calendar'
+
 export function buildNextAuthOptions(
   req: NextApiRequest | NextPageContext['req'],
   res: NextApiResponse | NextPageContext['res']
@@ -18,8 +23,7 @@ export function buildNextAuthOptions(
             prompt: 'consent',
             access_type: 'offline',
             response_type: 'code',
-            scope:
-              'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/calendar',
+            scope: `${SCOPE_USER_INFO_EMAIL} ${SCOPE_USER_INFO_PROFILE} ${SCOPE_CALENDAR}`,
           },
         },
         profile(profile: GoogleProfile) {
@@ -35,9 +39,7 @@ export function buildNextAuthOptions(
     ],
     callbacks: {
       async signIn({ account }) {
-        if (
-          !account?.scope?.includes('https://www.googleapis.com/auth/calendar')
-        ) {
+        if (!account?.scope?.includes(SCOPE_CALENDAR)) {
           return '/register/connect-calendar?error=permissions'
         }
 
