@@ -34,8 +34,8 @@ export default async function handler(
   const { intervals } = timeIntervalsBodySchema.parse(req.body)
 
   await Promise.all(
-    intervals.map((interval) =>
-      prisma.userTimeInterval.create({
+    intervals.map((interval) => {
+      return prisma.userTimeInterval.create({
         data: {
           week_day: interval.weekDay,
           time_start_in_minutes: interval.startTimeInMinutes,
@@ -43,7 +43,7 @@ export default async function handler(
           user_id: session.user?.id,
         },
       })
-    )
+    })
   )
 
   return res.status(201).end()
