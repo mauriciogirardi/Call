@@ -9,3 +9,13 @@ export const getWeekDays = (week: number) => {
     6: 'Sábado',
   }[week]
 }
+
+export const getShortWeekDays = [
+  'SEG',
+  'TER',
+  'QUA',
+  'QUI',
+  'SEX',
+  'SÁB',
+  'DOM',
+]
