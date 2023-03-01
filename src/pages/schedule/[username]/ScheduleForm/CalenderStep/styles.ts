@@ -90,3 +90,10 @@ export const TimerPickerItem = styled('button', {
     boxShadow: '0 0 0 1px $colors$gray100',
   },
 })
+
+export const LoadingHours = styled('div', {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  height: 150,
+})
