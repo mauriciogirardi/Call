@@ -95,3 +95,7 @@ export const CalendarDay = styled('button', {
     boxShadow: '0 0 0 1px $colors$gray100',
   },
 })
+
+export const ContainerLoading = styled('tr', {
+  height: '250px',
+})

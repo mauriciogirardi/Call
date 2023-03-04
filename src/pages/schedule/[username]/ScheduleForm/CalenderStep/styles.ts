@@ -40,6 +40,25 @@ export const TimerPicker = styled('div', {
     height: '200px',
     width: '100%',
   },
+
+  /* Works on Firefox */
+  '&': {
+    scrollbarWidth: 'thin',
+    scrollbarColor: '$gray700 $gray900',
+  },
+  /* Works on Chrome, Edge, and Safari */
+  '&::-webkit-scrollbar': {
+    width: '10px',
+  },
+
+  '&::-webkit-scrollbar-track': {
+    background: '$gray700', // color of the tracking area
+  },
+
+  '&::-webkit-scrollbar-thumb': {
+    backgroundColor: '$gray900', //color of the scroll thumb
+    borderRadius: '0 20px 20px 0', // roundness of the scroll thumb
+  },
 })
 
 export const TimerPickerHeader = styled(Text, {

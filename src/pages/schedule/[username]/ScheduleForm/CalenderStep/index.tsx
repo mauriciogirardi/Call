@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { Calendar } from '../../../../../components/Calendar'
 import { Spinner } from '../../../../../components/Spinner'
 import { api } from '../../../../../lib/axios'
+import { formatDate } from '../../../../../utils/formatDate'
 import { message } from '../../../../../utils/message'
 import {
   Container,
@@ -20,20 +21,26 @@ type AvailabilityData = {
   possibleTimes: number[]
 }
 
-export function CalendarStep() {
+interface CalendarStepProps {
+  onSelectedDateTime: (date: Date) => void
+}
+
+export function CalendarStep({ onSelectedDateTime }: CalendarStepProps) {
   const router = useRouter()
   const username = router.query?.username
 
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
 
   const isDateSelected = !!selectedDate
-  const weekDay = selectedDate ? dayjs(selectedDate).format('dddd') : null
-  const describedDate = selectedDate
-    ? dayjs(selectedDate).format('DD [de] MMMM')
-    : null
-  const selectedDateWithoutTime = selectedDate
-    ? dayjs(selectedDate).format('YYYY-MM-DD')
-    : null
+  const weekDay = formatDate({ date: selectedDate })
+  const describedDate = formatDate({
+    date: selectedDate,
+    type: 'describedDate',
+  })
+  const selectedDateWithoutTime = formatDate({
+    date: selectedDate,
+    type: 'selectedDateWithoutTime',
+  })
 
   const { data: availability, isLoading } = useQuery<AvailabilityData>(
     ['availability', selectedDateWithoutTime],
@@ -48,6 +55,7 @@ export function CalendarStep() {
     {
       enabled: !!selectedDate,
       onError: (err) => {
+        console.error(err)
         return message({
           type: 'error',
           description: 'Erro ao carregar as horas, tente novamente!',
@@ -55,6 +63,14 @@ export function CalendarStep() {
       },
     }
   )
+
+  const handleSelectTime = (hour: number) => {
+    const dateWihTime = dayjs(selectedDate)
+      .set('hour', hour)
+      .startOf('hour')
+      .toDate()
+    onSelectedDateTime(dateWihTime)
+  }
 
   return (
     <Container isTimerPickerOpen={isDateSelected}>
@@ -77,6 +93,7 @@ export function CalendarStep() {
                   <TimerPickerItem
                     key={hour}
                     disabled={!availability.availableTimes.includes(hour)}
+                    onClick={() => handleSelectTime(hour)}
                   >
                     {String(hour)}:00h
                   </TimerPickerItem>

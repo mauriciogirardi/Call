@@ -1,8 +1,14 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button, Text, TextArea, TextInput } from '@ignite-ui/react'
+import { AxiosError } from 'axios'
+import dayjs from 'dayjs'
+import { useRouter } from 'next/router'
 import { CalendarBlank, Clock } from 'phosphor-react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
+import { api } from '../../../../../lib/axios'
+import { formatDate } from '../../../../../utils/formatDate'
+import { message } from '../../../../../utils/message'
 
 import { ConfirmForm, ConfirmHeader, FormActions, FormError } from './styles'
 
@@ -16,7 +22,18 @@ const confirmFormSchema = z.object({
 
 type ConfirmFormData = z.infer<typeof confirmFormSchema>
 
-export function ConfirmStep() {
+interface ConfirmStep {
+  schedulingDate: Date
+  onCancelConfirmation: () => void
+}
+
+export function ConfirmStep({
+  schedulingDate,
+  onCancelConfirmation,
+}: ConfirmStep) {
+  const router = useRouter()
+  const username = String(router.query.username)
+
   const {
     register,
     handleSubmit,
@@ -25,18 +42,58 @@ export function ConfirmStep() {
     resolver: zodResolver(confirmFormSchema),
   })
 
-  const handleConfirmScheduling = (data: ConfirmFormData) => {}
+  const describeDate = formatDate({
+    date: schedulingDate,
+    type: 'dateWithTime',
+  })
+  const describeTime = formatDate({ date: schedulingDate, type: 'time' })
+
+  const handleConfirmScheduling = async ({
+    email,
+    name,
+    observations,
+  }: ConfirmFormData) => {
+    try {
+      await api.post(`/users/${username}/schedule`, {
+        name,
+        email,
+        observations,
+        date: schedulingDate,
+      })
+
+      message({
+        description: 'Agendamento salvo com sucesso!',
+        type: 'success',
+      })
+
+      onCancelConfirmation()
+    } catch (error) {
+      console.error(error)
+      if (error instanceof AxiosError) {
+        message({
+          description: error.response?.data?.message,
+          type: 'error',
+        })
+      } else {
+        console.error(error)
+        message({
+          description: 'Error ao salvar o agendamento, tente novamente!',
+          type: 'error',
+        })
+      }
+    }
+  }
 
   return (
     <ConfirmForm as="form" onSubmit={handleSubmit(handleConfirmScheduling)}>
       <ConfirmHeader>
         <Text>
           <CalendarBlank />
-          22 de Setembro de 2022
+          {describeDate}
         </Text>
         <Text>
           <Clock />
-          18:00h
+          {describeTime}
         </Text>
       </ConfirmHeader>
 
@@ -58,7 +115,12 @@ export function ConfirmStep() {
       </label>
 
       <FormActions>
-        <Button type="button" variant="tertiary" disabled={isSubmitting}>
+        <Button
+          type="button"
+          variant="tertiary"
+          disabled={isSubmitting}
+          onClick={onCancelConfirmation}
+        >
           Cancelar
         </Button>
         <Button type="submit" disabled={isSubmitting}>
