@@ -1,4 +1,3 @@
-import { zodResolver } from '@hookform/resolvers/zod'
 import {
   Button,
   Checkbox,
@@ -7,16 +6,14 @@ import {
   Text,
   TextInput,
 } from '@ignite-ui/react'
-import { useRouter } from 'next/router'
-import { ArrowRight } from 'phosphor-react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
-import { z } from 'zod'
-import { api } from '../../../lib/axios'
-import { convertTimeStringInMinutes } from '../../../utils/convertTimeStringInMinutes'
-import { getWeekDays } from '../../../utils/getWeekDays'
-import { message } from '../../../utils/message'
-import { Container, Header } from '../styles'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { ArrowRight } from 'phosphor-react'
+import { AxiosError } from 'axios'
+import { useRouter } from 'next/router'
 import { NextSeo } from 'next-seo'
+import { z } from 'zod'
+
 import {
   FormError,
   IntervalBox,
@@ -25,7 +22,21 @@ import {
   IntervalInput,
   IntervalItem,
 } from './styles'
-import { AxiosError } from 'axios'
+import { convertTimeStringInMinutes } from '../../../utils/convertTimeStringInMinutes'
+import { Container, Header } from '../styles'
+import { getWeekDays } from '../../../utils/getWeekDays'
+import { message } from '../../../utils/message'
+import { api } from '../../../lib/axios'
+
+const INTERVALS_DEFAULT = [
+  { weekDay: 0, enabled: false, startTime: '08:00', endTime: '18:00' },
+  { weekDay: 1, enabled: true, startTime: '08:00', endTime: '18:00' },
+  { weekDay: 2, enabled: true, startTime: '08:00', endTime: '18:00' },
+  { weekDay: 3, enabled: true, startTime: '08:00', endTime: '18:00' },
+  { weekDay: 4, enabled: true, startTime: '08:00', endTime: '18:00' },
+  { weekDay: 5, enabled: true, startTime: '08:00', endTime: '18:00' },
+  { weekDay: 6, enabled: false, startTime: '08:00', endTime: '18:00' },
+]
 
 const timeIntervalsFormSchema = z.object({
   intervals: z
@@ -78,15 +89,7 @@ export default function TimeIntervals() {
   } = useForm<TimeIntervalsFormInput>({
     resolver: zodResolver(timeIntervalsFormSchema),
     defaultValues: {
-      intervals: [
-        { weekDay: 0, enabled: false, startTime: '08:00', endTime: '18:00' },
-        { weekDay: 1, enabled: true, startTime: '08:00', endTime: '18:00' },
-        { weekDay: 2, enabled: true, startTime: '08:00', endTime: '18:00' },
-        { weekDay: 3, enabled: true, startTime: '08:00', endTime: '18:00' },
-        { weekDay: 4, enabled: true, startTime: '08:00', endTime: '18:00' },
-        { weekDay: 5, enabled: true, startTime: '08:00', endTime: '18:00' },
-        { weekDay: 6, enabled: false, startTime: '08:00', endTime: '18:00' },
-      ],
+      intervals: INTERVALS_DEFAULT,
     },
   })
 
@@ -126,7 +129,7 @@ export default function TimeIntervals() {
 
   return (
     <>
-      <NextSeo title="Selecione sua disponibilidade | Ignite Call" noindex />
+      <NextSeo title="Selecione sua disponibilidade | Call" noindex />
 
       <Container>
         <Header>
@@ -166,6 +169,7 @@ export default function TimeIntervals() {
                       size="sm"
                       type="time"
                       step={60}
+                      autoComplete="off"
                       disabled={intervals[index].enabled === false}
                       {...register(`intervals.${index}.startTime`)}
                     />
@@ -173,6 +177,7 @@ export default function TimeIntervals() {
                       size="sm"
                       type="time"
                       step={60}
+                      autoComplete="off"
                       disabled={intervals[index].enabled === false}
                       {...register(`intervals.${index}.endTime`)}
                     />

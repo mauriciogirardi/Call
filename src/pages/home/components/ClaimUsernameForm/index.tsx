@@ -42,6 +42,7 @@ export function ClaimUsernameForm() {
           size="sm"
           prefix="call.com/"
           placeholder="seu-usuário"
+          autoComplete="off"
           {...register('username')}
         />
         <Button size="sm" type="submit" disabled={isSubmitting}>

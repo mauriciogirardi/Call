@@ -1,10 +1,12 @@
-import { signIn, useSession } from 'next-auth/react'
 import { Button, Heading, MultiStep, Text } from '@ignite-ui/react'
+import { signIn, useSession } from 'next-auth/react'
 import { ArrowRight } from 'phosphor-react'
-import { Container, Header } from '../styles'
-import { AuthError, ConnectBox, ConnectItem, ContentButton } from './styles'
-import Image from 'next/image'
 import { useRouter } from 'next/router'
+import { NextSeo } from 'next-seo'
+import Image from 'next/image'
+
+import { AuthError, ConnectBox, ConnectItem, ContentButton } from './styles'
+import { Container, Header } from '../styles'
 
 type DataUser = {
   user: {
@@ -28,54 +30,58 @@ export default function ConnectCalendar() {
   const handleConnectCalendar = async () => await signIn('google')
 
   return (
-    <Container>
-      <Header>
-        <Heading as="strong">Conecte sua agenda!</Heading>
-        <Text>
-          Conecte o seu calendário para verificar automaticamente as horas
-          ocupadas e os novos eventos à medida em que são agendados.
-        </Text>
-        <MultiStep size={4} currentStep={2} />
-      </Header>
+    <>
+      <NextSeo title="Conecte sua agenda do Google | Call" noindex />
 
-      <ConnectBox>
-        <ConnectItem>
-          <Text>Google Calendar</Text>
+      <Container>
+        <Header>
+          <Heading as="strong">Conecte sua agenda!</Heading>
+          <Text>
+            Conecte o seu calendário para verificar automaticamente as horas
+            ocupadas e os novos eventos à medida em que são agendados.
+          </Text>
+          <MultiStep size={4} currentStep={2} />
+        </Header>
+
+        <ConnectBox>
+          <ConnectItem>
+            <Text>Google Calendar</Text>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={handleConnectCalendar}
+              disabled={isAuthenticated}
+            >
+              <ContentButton>
+                {isAuthenticated && user?.avatar_url && (
+                  <Image
+                    src={user.avatar_url}
+                    alt=""
+                    width={25}
+                    height={25}
+                    style={{ borderRadius: '50%' }}
+                  />
+                )}
+                {connectMessage}
+              </ContentButton>
+            </Button>
+          </ConnectItem>
+          {hasAuthError && (
+            <AuthError size="sm">
+              Falha ao se conectar ao Google, verifique se você habilitou as
+              permissões de acesso ao Google Calendar
+            </AuthError>
+          )}
           <Button
-            variant="secondary"
-            size="sm"
-            onClick={handleConnectCalendar}
-            disabled={isAuthenticated}
+            type="button"
+            disabled={!isAuthenticated}
+            onClick={() => router.push('/register/time-intervals')}
           >
-            <ContentButton>
-              {isAuthenticated && user?.avatar_url && (
-                <Image
-                  src={user.avatar_url}
-                  alt=""
-                  width={25}
-                  height={25}
-                  style={{ borderRadius: '50%' }}
-                />
-              )}
-              {connectMessage}
-            </ContentButton>
+            Próximo passo
+            <ArrowRight />
           </Button>
-        </ConnectItem>
-        {hasAuthError && (
-          <AuthError size="sm">
-            Falha ao se conectar ao Google, verifique se você habilitou as
-            permissões de acesso ao Google Calendar
-          </AuthError>
-        )}
-        <Button
-          type="button"
-          disabled={!isAuthenticated}
-          onClick={() => router.push('/register/time-intervals')}
-        >
-          Próximo passo
-          <ArrowRight />
-        </Button>
-      </ConnectBox>
-    </Container>
+        </ConnectBox>
+      </Container>
+    </>
   )
 }
